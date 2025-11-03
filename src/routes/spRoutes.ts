@@ -27,7 +27,7 @@ router.post("/prompt", async (req, res) => {
     });
   }
 
-  const { tag, prompt, isPosted, approved, scheduledAt, promptCreatedAt } =
+  const { tag, prompt, isPosted, isApproved, scheduledAt, promptCreatedAt } =
     req.body;
 
   if (!tag || !prompt || !scheduledAt || !promptCreatedAt) {
@@ -42,7 +42,7 @@ router.post("/prompt", async (req, res) => {
     tag,
     prompt,
     isPosted,
-    approved,
+    isApproved,
     scheduledAt,
     promptCreatedAt,
   };
@@ -92,7 +92,7 @@ router.post("/prompt/bulk", async (req, res) => {
 
     // 🧱 Prepare each item with required fields
     const formattedItems = items.map((item, index) => {
-      const { tag, prompt, isPosted, approved, scheduledAt, promptCreatedAt } =
+      const { tag, prompt, isPosted, isApproved, scheduledAt, promptCreatedAt } =
         item;
       if (!tag || !prompt || !scheduledAt || !promptCreatedAt) {
         throw new Error(`Item at index ${index} missing required fields`);
@@ -101,7 +101,7 @@ router.post("/prompt/bulk", async (req, res) => {
         tag,
         prompt,
         isPosted,
-        approved,
+        isApproved,
         scheduledAt,
         promptCreatedAt,
       };
@@ -163,7 +163,7 @@ router.post("/create", async (req, res) => {
     // 🧩 Validate prompt
     const promptRequired = [
       "prompt",
-      "approved",
+      "isApproved",
       "isPosted",
       "scheduledAt",
       "promptCreatedAt",
@@ -208,7 +208,7 @@ router.post("/create", async (req, res) => {
     const promptItem = {
       tag: tag,
       prompt: prompt.prompt,
-      approved: prompt.approved,
+      isApproved: prompt.isApproved,
       isPosted: prompt.isPosted,
       scheduledAt: prompt.scheduledAt,
       promptCreatedAt: prompt.promptCreatedAt,
@@ -238,14 +238,41 @@ router.post("/create", async (req, res) => {
       });
     }
 
+    const cleanedData = {
+      tag,
+      prompt: {
+        id: promptRes.id,
+        tag: promptRes.fields.tag,
+        prompt: promptRes.fields.prompt,
+        isApproved: promptRes.fields.isApproved,
+        isPosted: promptRes.fields.isPosted,
+        scheduledAt: promptRes.fields.scheduledAt,
+        promptCreatedAt: promptRes.fields.promptCreatedAt,
+        createdAt: promptRes.fields.Created,
+        webUrl: promptRes.webUrl,
+      },
+      post: {
+        id: postRes.id,
+        tag: postRes.fields.tag,
+        platform: postRes.fields.platform,
+        content: postRes.fields.content,
+        visual: postRes.fields.visual,
+        postUrl: postRes.fields.postUrl,
+        isApproved: postRes.fields.isApproved,
+        postedAt: postRes.fields.postedAt,
+        createdAt: postRes.fields.Created,
+        webUrl: postRes.webUrl,
+        likes: postRes.likes,
+        comments: postRes.comments,
+        impressions: postRes.impressions,
+      },
+    };
+
     return res.status(201).json({
       status: 201,
       success: true,
       message: "Prompt and Post created successfully.",
-      data: {
-        prompt: promptRes,
-        post: postRes,
-      },
+      data: cleanedData,
     });
   } catch (error) {
     console.error("❌ Error creating prompt & post:", error);
