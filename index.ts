@@ -4,9 +4,7 @@ import powerbiRoutes from "./src/routes/powerbiRoutes";
 import spRoutes from "./src/routes/spRoutes";
 import cors from "cors";
 import { getSharePointAccessToken } from "./src/helper/sp/getSharePointAccessToken";
-import { getAllItemsByListName } from "./src/helper/sp/getAllItemsByListName";
 import { getListIdByName, getSiteId } from "./src/helper/sp/graphQLConfigApis";
-import { createListItem } from "./src/helper/sp/createListItem";
 import { setSPListId, setSPSiteId, setSPToken } from "./src/config/tokenStore";
 
 // const requestURL = "{0}/_api/Web/Lists/GetByTitle('{1}')/Items{2}";
@@ -22,6 +20,25 @@ app.listen(config.port, () => {
   console.log(`Power BI backend running on port ${config.port}`);
 });
 
+// const items = [
+//   {
+//     tag: "AiXQP",
+//     prompt: "Transforming education with AI",
+//     approved: true,
+//     isPosted: false,
+//     scheduledAt: "2025-11-03T10:00:00Z",
+//     promptCreatedAt: "2025-11-02T15:00:00Z",
+//   },
+//   {
+//     tag: "AiXHub",
+//     prompt: "Empowering digital innovation",
+//     approved: false,
+//     isPosted: false,
+//     scheduledAt: "2025-11-04T09:00:00Z",
+//     promptCreatedAt: "2025-11-02T16:00:00Z",
+//   },
+// ];
+
 (async () => {
   try {
     const token = await getSharePointAccessToken();
@@ -35,6 +52,9 @@ app.listen(config.port, () => {
     const listId = await getListIdByName(token, siteId, "Prompt");
     listId && setSPListId(listId);
     // console.log("List Id: ", listId);
+
+    // Create Graph batch payload
+
     // Create items
     // const item = {
     //   Title: "AI Automation",
