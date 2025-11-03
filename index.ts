@@ -5,7 +5,8 @@ import spRoutes from "./src/routes/spRoutes";
 import cors from "cors";
 import { getSharePointAccessToken } from "./src/helper/sp/getSharePointAccessToken";
 import { getListIdByName, getSiteId } from "./src/helper/sp/graphQLConfigApis";
-import { setSPListId, setSPSiteId, setSPToken } from "./src/config/tokenStore";
+import { setPostListId, setPromptListId, setSPSiteId, setSPToken } from "./src/config/tokenStore";
+import { createListItem } from "./src/helper/sp/createListItem";
 
 // const requestURL = "{0}/_api/Web/Lists/GetByTitle('{1}')/Items{2}";
 
@@ -20,25 +21,6 @@ app.listen(config.port, () => {
   console.log(`Power BI backend running on port ${config.port}`);
 });
 
-// const items = [
-//   {
-//     tag: "AiXQP",
-//     prompt: "Transforming education with AI",
-//     approved: true,
-//     isPosted: false,
-//     scheduledAt: "2025-11-03T10:00:00Z",
-//     promptCreatedAt: "2025-11-02T15:00:00Z",
-//   },
-//   {
-//     tag: "AiXHub",
-//     prompt: "Empowering digital innovation",
-//     approved: false,
-//     isPosted: false,
-//     scheduledAt: "2025-11-04T09:00:00Z",
-//     promptCreatedAt: "2025-11-02T16:00:00Z",
-//   },
-// ];
-
 (async () => {
   try {
     const token = await getSharePointAccessToken();
@@ -49,8 +31,12 @@ app.listen(config.port, () => {
     const siteId = await getSiteId(token);
     siteId && setSPSiteId(siteId);
     // console.log("Site Id:", siteId);
-    const listId = await getListIdByName(token, siteId, "Prompt");
-    listId && setSPListId(listId);
+    const promptListId = await getListIdByName(token, siteId, "Prompt");
+    promptListId && setPromptListId(promptListId);
+
+    const postListId = await getListIdByName(token, siteId, "Post");
+    postListId && setPostListId(postListId);
+
     // console.log("List Id: ", listId);
 
     // Create Graph batch payload
@@ -65,8 +51,18 @@ app.listen(config.port, () => {
     //   scheduledAt: "2025-11-01T09:30:00Z",
     //   promptCreatedAt: "2025-10-31T17:45:00Z",
     // };
-    // const res = await createListItem(siteId, listId, token, item);
-    // res && console.log("Data after creating item:", res)
+
+    // const postItem = {
+    //   tag: "AIXHub8777",
+    //   platform: "LinkedIn",
+    //   postedAt: "2025-11-01T09:30:00Z",
+    //   content: "AI is revolutionizing how we learn, build, and grow. #AIXHub",
+    //   visual: "https://itcart.ai/uploads/ai-banner.png",
+    //   isApproved: true,
+    //   postUrl: "https://linkedin.com/posts/itcart-ai",
+    // };
+    // const res = await createListItem(siteId, listId, token, postItem);
+    // res && console.log("Data after creating item:", res);
   } catch (err) {
     console.error("❌ Error fetching", err);
   }

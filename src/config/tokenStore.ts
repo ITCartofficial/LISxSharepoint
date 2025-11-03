@@ -1,6 +1,7 @@
 let token: string | null = null;
 let siteId: string | null = null;
-let listId: string | null = null;
+let postListId: string | null = null;
+let promptListId: string | null = null;
 
 export const setSPToken = (value: string) => {
   token = value;
@@ -10,8 +11,12 @@ export const setSPSiteId = (value: string) => {
   siteId = value;
 };
 
-export const setSPListId = (value: string) => {
-  listId = value;
+export const setPostListId = (value: string) => {
+  postListId = value;
+};
+
+export const setPromptListId = (value: string) => {
+  promptListId = value;
 };
 
 export const getSPToken = (): string | null => {
@@ -21,6 +26,13 @@ export const getSPToken = (): string | null => {
 export const getSPSiteId = (): string | null => {
   return siteId;
 };
-export const getSPListId = (): string | null => {
-  return listId;
+
+export const getPromptListId = (): string | null => {
+  return promptListId;
 };
+
+export const getPostListId = (): string | null => {
+  return postListId;
+};
+
+
