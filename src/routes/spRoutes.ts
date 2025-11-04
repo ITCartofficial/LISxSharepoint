@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { getListIdByName } from "../helper/sp/graphQLConfigApis";
 import {
   getPostListId,
@@ -10,6 +10,10 @@ import {
   createBulkListItems,
   createListItem,
 } from "../helper/sp/createListItem";
+import {
+  findListItemByField,
+  updatePostByPostUrl,
+} from "../helper/sp/updateListItem";
 
 const router = express.Router();
 
@@ -92,8 +96,14 @@ router.post("/prompt/bulk", async (req, res) => {
 
     // 🧱 Prepare each item with required fields
     const formattedItems = items.map((item, index) => {
-      const { tag, prompt, isPosted, isApproved, scheduledAt, promptCreatedAt } =
-        item;
+      const {
+        tag,
+        prompt,
+        isPosted,
+        isApproved,
+        scheduledAt,
+        promptCreatedAt,
+      } = item;
       if (!tag || !prompt || !scheduledAt || !promptCreatedAt) {
         throw new Error(`Item at index ${index} missing required fields`);
       }
@@ -280,6 +290,127 @@ router.post("/create", async (req, res) => {
       status: 500,
       success: false,
       message: error,
+    });
+  }
+});
+
+// post - Create single items in SharePoint List (Post)
+router.post("/post", async (req, res) => {
+  const token = getSPToken();
+  const siteId = getSPSiteId();
+  const listId = getPostListId();
+
+  if (!token || !siteId || !listId) {
+    return res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Token not initialized on server",
+    });
+  }
+
+  const { tag, platform, postedAt, content, visual, postUrl, isApproved } =
+    req.body;
+
+  if (
+    !tag ||
+    !platform ||
+    !postedAt ||
+    !content ||
+    !visual ||
+    !postUrl ||
+    isApproved === undefined
+  ) {
+    return res.status(400).json({
+      status: 400,
+      success: false,
+      message: "Missing required fields",
+    });
+  }
+
+  const item = {
+    tag,
+    platform,
+    postedAt,
+    content,
+    visual,
+    postUrl,
+    isApproved,
+  };
+
+  const data = await createListItem(siteId, listId, token, item);
+  if (!data) {
+    return res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Failed to create user due to a server error",
+    });
+  }
+
+  return res.status(201).json({
+    status: 201,
+    success: true,
+    message: "Prompt created successfully",
+    data: data,
+  });
+});
+
+router.put("/update-post", async (req: Request, res: Response) => {
+  const { postUrl, data } = req.body;
+
+  if (!postUrl || !data) {
+    return res.status(400).json({ message: "postUrl and data are required." });
+  }
+
+  try {
+    // Replace with your values
+    const token = getSPToken();
+    const siteId = getSPSiteId();
+    const listId = getPostListId();
+
+    if (!token || !siteId || !listId) {
+      return res.status(500).json({
+        message: "SharePoint configuration not initialized on the server.",
+      });
+    }
+
+    // 2️⃣ Update the found item
+    const updatedItem = await updatePostByPostUrl(
+      siteId,
+      listId,
+      token,
+      postUrl,
+      data
+    );
+
+    if (!updatedItem) {
+      return res
+        .status(500)
+        .json({ message: "Failed to update the post item." });
+    }
+
+    const newItem = {
+      id: updatedItem.id,
+      postUrl: updatedItem.postUrl,
+      tag: updatedItem.tag,
+      platform: updatedItem.platform,
+      postedAt: updatedItem.postedAt,
+      content: updatedItem.content,
+      visual: updatedItem.visual,
+      isApproved: updatedItem.isApproved,
+    };
+
+    return res.status(200).json({
+      message: "Post updated successfully.",
+      updatedItem: newItem,
+    });
+  } catch (error: any) {
+    console.error(
+      "Error updating post:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({
+      message: "Failed to update post.",
+      error: error.response?.data || error.message,
     });
   }
 });

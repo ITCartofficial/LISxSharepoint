@@ -5,8 +5,13 @@ import spRoutes from "./src/routes/spRoutes";
 import cors from "cors";
 import { getSharePointAccessToken } from "./src/helper/sp/getSharePointAccessToken";
 import { getListIdByName, getSiteId } from "./src/helper/sp/graphQLConfigApis";
-import { setPostListId, setPromptListId, setSPSiteId, setSPToken } from "./src/config/tokenStore";
-import { createListItem } from "./src/helper/sp/createListItem";
+import {
+  setPostListId,
+  setPromptListId,
+  setSPSiteId,
+  setSPToken,
+} from "./src/config/tokenStore";
+import { getDriveFiles, getDriveIdByName } from "./src/helper/sp/fetchSPDrive";
 
 // const requestURL = "{0}/_api/Web/Lists/GetByTitle('{1}')/Items{2}";
 
@@ -36,6 +41,12 @@ app.listen(config.port, () => {
 
     const postListId = await getListIdByName(token, siteId, "Post");
     postListId && setPostListId(postListId);
+
+    // await getDrives(token, siteId);
+
+    // const driveId = await getDriveIdByName(token, siteId, "LISBlob");
+
+    // await getDriveFiles(token, driveId);
 
     // console.log("List Id: ", listId);
 
