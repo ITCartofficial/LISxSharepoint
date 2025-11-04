@@ -397,6 +397,9 @@ router.put("/update-post", async (req: Request, res: Response) => {
       content: updatedItem.content,
       visual: updatedItem.visual,
       isApproved: updatedItem.isApproved,
+      likes: updatedItem.likes,
+      comments: updatedItem.comments,
+      impressions: updatedItem.impressions,
     };
 
     return res.status(200).json({
