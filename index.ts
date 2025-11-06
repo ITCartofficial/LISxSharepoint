@@ -28,16 +28,17 @@ app.listen(config.port, () => {
   try {
     const token = await getSharePointAccessToken();
     token && console.log("✅ SharePoint Authentication Successfully");
-    token && setSPToken(token);
+    token.access_token && setSPToken(token.access_token);
+
     // const allList: any[] | null = await getAllItemsByListName(token);
     // allList && console.log("List", allList.length);
-    const siteId = await getSiteId(token);
+    const siteId = await getSiteId(token.access_token);
     siteId && setSPSiteId(siteId);
     // console.log("Site Id:", siteId);
-    const promptListId = await getListIdByName(token, siteId, "Prompt");
+    const promptListId = await getListIdByName(token.access_token, siteId, "Prompt");
     promptListId && setPromptListId(promptListId);
 
-    const postListId = await getListIdByName(token, siteId, "Post");
+    const postListId = await getListIdByName(token.access_token, siteId, "Post");
     postListId && setPostListId(postListId);
 
     // const items = await getAllItemsByListName(token, "Post");

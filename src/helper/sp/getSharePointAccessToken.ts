@@ -15,5 +15,5 @@ export const getSharePointAccessToken = async () => {
   params.append("scope", "https://graph.microsoft.com/.default");
   
   const response = await axios.post(tokenUrl, params);
-  return response.data.access_token;
+  return response.data;
 };
