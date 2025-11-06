@@ -1,7 +1,7 @@
-export const getAllItemsByListName = async (token: string) => {
+export const getAllItemsByListName = async (token: string, list: string) => {
   const siteHostname = "itcart.sharepoint.com";
   const sitePath = "/sites/AIXHub";
-  const listName = "Prompt";
+  const listName = list || "Prompt";
 
   try {
     const response = await fetch(

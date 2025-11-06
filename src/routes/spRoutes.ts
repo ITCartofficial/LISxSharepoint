@@ -13,6 +13,7 @@ import {
 import {
   findListItemByField,
   updatePostByPostUrl,
+  updatePostByTag,
 } from "../helper/sp/updateListItem";
 
 const router = express.Router();
@@ -355,10 +356,10 @@ router.post("/post", async (req, res) => {
 });
 
 router.put("/update-post", async (req: Request, res: Response) => {
-  const { postUrl, data } = req.body;
+  const { tag, data } = req.body;
 
-  if (!postUrl || !data) {
-    return res.status(400).json({ message: "postUrl and data are required." });
+  if (!tag || !data) {
+    return res.status(400).json({ message: "tag and data are required." });
   }
 
   try {
@@ -374,11 +375,11 @@ router.put("/update-post", async (req: Request, res: Response) => {
     }
 
     // 2️⃣ Update the found item
-    const updatedItem = await updatePostByPostUrl(
+    const updatedItem = await updatePostByTag(
       siteId,
       listId,
       token,
-      postUrl,
+      tag,
       data
     );
 
@@ -413,6 +414,68 @@ router.put("/update-post", async (req: Request, res: Response) => {
     );
     res.status(500).json({
       message: "Failed to update post.",
+      error: error.response?.data || error.message,
+    });
+  }
+});
+
+router.post("/update-post/bulk", async (req, res) => {
+  const posts = req.body;
+
+  if (!posts || !Array.isArray(posts)) {
+    return res.status(400).json({ message: "Invalid data format." });
+  }
+
+  try {
+    // Replace with your values
+    const token = getSPToken();
+    const siteId = getSPSiteId();
+    const listId = getPostListId();
+
+    if (!token || !siteId || !listId) {
+      return res.status(500).json({
+        message: "SharePoint configuration not initialized on the server.",
+      });
+    }
+
+    // 2️⃣ Update the found items
+    const results = await Promise.allSettled(
+      posts.map((item) =>
+        updatePostByTag(siteId, listId, token, item.tag, item.data)
+      )
+    );
+
+    const successfulUpdates = results
+      .filter(
+        (result): result is PromiseFulfilledResult<any> =>
+          result.status === "fulfilled"
+      )
+      .map((result) => result.value);
+
+    const failedUpdates = results
+      .filter(
+        (result): result is PromiseRejectedResult =>
+          result.status === "rejected"
+      )
+      .map((result, index) => ({
+        tag: posts[index].tag,
+        error: result.reason?.message || "Update failed",
+      }));
+
+    return res.status(200).json({
+      message: "Posts update process completed",
+      successCount: successfulUpdates.length,
+      failureCount: failedUpdates.length,
+      // updatedItems: successfulUpdates,
+      // failedItems: failedUpdates,
+    });
+  } catch (error: any) {
+    console.error(
+      "Error updating posts:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({
+      message: "Failed to update posts.",
       error: error.response?.data || error.message,
     });
   }

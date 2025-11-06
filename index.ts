@@ -11,9 +11,7 @@ import {
   setSPSiteId,
   setSPToken,
 } from "./src/config/tokenStore";
-import { getDriveFiles, getDriveIdByName } from "./src/helper/sp/fetchSPDrive";
-
-// const requestURL = "{0}/_api/Web/Lists/GetByTitle('{1}')/Items{2}";
+import { getAllItemsByListName } from "./src/helper/sp/getAllItemsByListName";
 
 const app = express();
 app.use(cors());
@@ -42,12 +40,20 @@ app.listen(config.port, () => {
     const postListId = await getListIdByName(token, siteId, "Post");
     postListId && setPostListId(postListId);
 
+    // const items = await getAllItemsByListName(token, "Post");
+
+    // if (!items) {
+    //   console.log("No items found");
+    //   return;
+    // }
+
+    // const tags = items.map((item: any) => item.fields.tag);
+
+    // console.log("Items", { length: items.length, tags: tags });
+
     // await getDrives(token, siteId);
-
     // const driveId = await getDriveIdByName(token, siteId, "LISBlob");
-
     // await getDriveFiles(token, driveId);
-
     // console.log("List Id: ", listId);
 
     // Create Graph batch payload
