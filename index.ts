@@ -10,7 +10,7 @@ import {
   setPromptListId,
   setSPSiteId,
   setSPToken,
-} from "./src/config/tokenStore";
+} from "./src/core/tokenStore";
 import { getAllItemsByListName } from "./src/helper/sp/getAllItemsByListName";
 
 const app = express();

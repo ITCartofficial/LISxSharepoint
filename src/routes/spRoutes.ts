@@ -5,7 +5,7 @@ import {
   getPromptListId,
   getSPSiteId,
   getSPToken,
-} from "../config/tokenStore";
+} from "../core/tokenStore";
 import {
   createBulkListItems,
   createListItem,
