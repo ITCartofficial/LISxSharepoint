@@ -12,6 +12,12 @@ import {
   setSPToken,
 } from "./src/config/tokenStore";
 import { getAllItemsByListName } from "./src/helper/sp/getAllItemsByListName";
+import axios from "axios";
+import {
+  updateListItem,
+  updatePostByTag,
+} from "./src/helper/sp/updateListItem";
+import { createListItem } from "./src/helper/sp/createListItem";
 
 const app = express();
 app.use(cors());
@@ -30,27 +36,104 @@ app.listen(config.port, () => {
     token && console.log("✅ SharePoint Authentication Successfully");
     token.access_token && setSPToken(token.access_token);
 
-    // const allList: any[] | null = await getAllItemsByListName(token);
+    // const allList: any[] | null = await getAllItemsByListName(token.access_token, "Post");
     // allList && console.log("List", allList.length);
     const siteId = await getSiteId(token.access_token);
     siteId && setSPSiteId(siteId);
     // console.log("Site Id:", siteId);
-    const promptListId = await getListIdByName(token.access_token, siteId, "Prompt");
+    const promptListId = await getListIdByName(
+      token.access_token,
+      siteId,
+      "Prompt"
+    );
     promptListId && setPromptListId(promptListId);
 
-    const postListId = await getListIdByName(token.access_token, siteId, "Post");
+    const postListId = await getListIdByName(
+      token.access_token,
+      siteId,
+      "Post"
+    );
     postListId && setPostListId(postListId);
 
-    // const items = await getAllItemsByListName(token, "Post");
+    // const items = await getAllItemsByListName(token.access_token, "Post");
 
     // if (!items) {
     //   console.log("No items found");
     //   return;
     // }
 
-    // const tags = items.map((item: any) => item.fields.tag);
+    // const postItems = items.map((item: any) => {
+    //   return { tag: item.fields.tag, id: item.id };
+    // });
 
-    // console.log("Items", { length: items.length, tags: tags });
+    // const tags = postItems.map((t: any) => t.tag);
+
+    // console.log("Items:", tags);
+
+    // console.log("Fetching analytics data, Please wait....");
+
+    // const result = await axios.post("http://127.0.0.1:8000/analytics", {
+    //   post_urn: tags,
+    // });
+
+    // if (!result) {
+    //   console.log("No analytics data found");
+    //   return;
+    // }
+
+    // console.log("Analytics Data:", result.data);
+
+    // const updatePromises = result.data.analytics.map(
+    //   async (analyticsItem: any) => {
+    //     try {
+    //       const tag = analyticsItem.tag;
+    //       const id = postItems.find((t: any) => t.tag === tag)?.id;
+
+    //       if (!id) {
+    //         throw new Error(`Item with tag ${tag} not found`);
+    //       }
+
+    //       const fieldsToUpdate = {
+    //         likes: analyticsItem.likes,
+    //         comments: analyticsItem.comments,
+    //         impressions: analyticsItem.impressions,
+    //         shares: analyticsItem.shares,
+    //       };
+
+    //       await updatePostByTag(
+    //         siteId,
+    //         postListId,
+    //         token.access_token,
+    //         tag,
+    //         fieldsToUpdate
+    //       );
+
+    //       return {
+    //         success: true,
+    //         tag,
+    //         message: "Updated successfully",
+    //       };
+    //     } catch (error: any) {
+    //       return {
+    //         success: false,
+    //         tag: analyticsItem.tag,
+    //         message: error.message || "Update failed",
+    //       };
+    //     }
+    //   }
+    // );
+
+    // const results = await Promise.all(updatePromises);
+
+    // const successful = results.filter((result) => result.success);
+    // const failed = results.filter((result) => !result.success);
+
+    // console.log(`✅ Successfully updated ${successful.length} items`);
+    // console.log(`❌ Failed to update ${failed.length} items`);
+
+    // if (failed.length > 0) {
+    //   console.log("Failed updates:", failed);
+    // }
 
     // await getDrives(token, siteId);
     // const driveId = await getDriveIdByName(token, siteId, "LISBlob");
@@ -60,11 +143,11 @@ app.listen(config.port, () => {
     // Create Graph batch payload
 
     // Create items
-    // const item = {
-    //   Title: "AI Automation",
+    // const promptItem = {
+    //   tag: "AI Automation 101",
     //   prompt:
     //     "Generate a LinkedIn post about how AI transforms workflow automation.",
-    //   approved: true,
+    //   isApproved: true,
     //   isPosted: false,
     //   scheduledAt: "2025-11-01T09:30:00Z",
     //   promptCreatedAt: "2025-10-31T17:45:00Z",
@@ -79,7 +162,7 @@ app.listen(config.port, () => {
     //   isApproved: true,
     //   postUrl: "https://linkedin.com/posts/itcart-ai",
     // };
-    // const res = await createListItem(siteId, listId, token, postItem);
+    // const res = await createListItem(siteId, promptListId, token.access_token, promptItem);
     // res && console.log("Data after creating item:", res);
   } catch (err) {
     console.error("❌ Error fetching", err);

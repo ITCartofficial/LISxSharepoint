@@ -15,6 +15,8 @@ import {
   updatePostByPostUrl,
   updatePostByTag,
 } from "../helper/sp/updateListItem";
+import axios from "axios";
+import { getAllItemsByListName } from "../helper/sp/getAllItemsByListName";
 
 const router = express.Router();
 
@@ -375,13 +377,7 @@ router.put("/update-post", async (req: Request, res: Response) => {
     }
 
     // 2️⃣ Update the found item
-    const updatedItem = await updatePostByTag(
-      siteId,
-      listId,
-      token,
-      tag,
-      data
-    );
+    const updatedItem = await updatePostByTag(siteId, listId, token, tag, data);
 
     if (!updatedItem) {
       return res
@@ -479,6 +475,96 @@ router.post("/update-post/bulk", async (req, res) => {
       error: error.response?.data || error.message,
     });
   }
+});
+
+router.get("/fetch", async (req, res) => {
+  const token = getSPToken();
+  const siteId = getSPSiteId();
+  const postListId = getPostListId();
+
+  if (!token || !siteId || !postListId) {
+    return res.status(500).json({
+      message: "SharePoint configuration not initialized on the server.",
+    });
+  }
+
+  const items = await getAllItemsByListName(token, "Post");
+
+  if (!items) {
+    console.log("No items found");
+    return;
+  }
+
+  const postItems = items.map((item: any) => {
+    return { tag: item.fields.tag, id: item.id };
+  });
+
+  const tags = postItems.map((t: any) => t.tag);
+
+  // console.log("Items:", tags);
+
+  console.log("Fetching analytics data, Please wait....");
+
+  const result = await axios.post("http://127.0.0.1:8000/analytics", {
+    post_urn: tags,
+  });
+
+  if (!result) {
+    return res.status(500).json({ message: "No analytics data found" });
+  }
+
+  // console.log("Analytics Data:", result.data);
+
+  const updatePromises = result.data.analytics.map(
+    async (analyticsItem: any) => {
+      try {
+        const tag = analyticsItem.tag;
+        const id = postItems.find((t: any) => t.tag === tag)?.id;
+
+        if (!id) {
+          throw new Error(`Item with tag ${tag} not found`);
+        }
+
+        const fieldsToUpdate = {
+          likes: analyticsItem.likes,
+          comments: analyticsItem.comments,
+          impressions: analyticsItem.impressions,
+          shares: analyticsItem.shares,
+        };
+
+        await updatePostByTag(siteId, postListId, token, tag, fieldsToUpdate);
+
+        return {
+          success: true,
+          tag,
+          message: "Updated successfully",
+        };
+      } catch (error: any) {
+        return {
+          success: false,
+          tag: analyticsItem.tag,
+          message: error.message || "Update failed",
+        };
+      }
+    }
+  );
+
+  const results = await Promise.all(updatePromises);
+
+  const successful = results.filter((result) => result.success);
+  const failed = results.filter((result) => !result.success);
+
+  console.log(`✅ Successfully updated items`);
+  // console.log(`✅ Successfully updated ${successful.length} items: ${successful.map(item => item.tag).join(", ")}`);
+  // console.log(`❌ Failed to update ${failed.length} items: ${failed.map(item => item.tag).join(", ")}`);
+
+  return res.status(200).json({
+    message: "Posts update process completed",
+    successCount: successful.length,
+    failureCount: failed.length,
+    updatedItems: successful,
+    failedItems: failed,
+  });
 });
 
 export default router;
