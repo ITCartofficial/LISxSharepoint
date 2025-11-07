@@ -214,7 +214,6 @@ export const getPostEngagementMetrics = async () => {
         total_likes: 0,
         total_engagements: 0,
         total_impressions: 0,
-        engagement_rate: 0,
         email_contacted: emailList ? emailList.length : 0,
         all_posts: [],
       };
@@ -262,7 +261,6 @@ export const getPostEngagementMetrics = async () => {
       total_likes,
       total_engagements,
       total_impressions,
-      engagement_rate,
       email_contacted: emailList ? emailList.length : 0,
       all_posts: items,
     };
