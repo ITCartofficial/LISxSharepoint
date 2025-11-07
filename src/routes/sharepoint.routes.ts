@@ -6,7 +6,6 @@ import {
   savePromptToList,
   syncPostList,
 } from "../controllers/sharepoint.controller";
-import { createListItem } from "../temp/sp/createListItem";
 import { validateItem } from "../middlewares/validateItem";
 
 const router = express.Router();
@@ -14,7 +13,7 @@ const router = express.Router();
 router.get("/items/:listName", getItemsByListName);
 
 router.get("/health", (req: Request, res: Response) => {
-  res.status(200).send("SharePoint API is healthy");
+  res.status(200).json({ status: "SharePoint routes are healthy!" });
 });
 
 router.get("/sync/post", syncPostList);

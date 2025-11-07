@@ -2,13 +2,11 @@ import express from "express";
 import { config } from "./src/config";
 import powerbiRoutes from "./src/routes/powerBI.routes";
 import sharePointRoutes from "./src/routes/sharepoint.routes";
+import dashboardRoutes from "./src/routes/dashboard.routes";
 import cors from "cors";
 import { setPostListId, setPromptListId } from "./src/constants/store";
 import { getADAccessToken } from "./src/services/auth.service";
-import {
-  getListIdByName,
-  getSiteIdByName,
-} from "./src/services/sharepoint.service";
+import { getListIdByName } from "./src/services/sharepoint.service";
 
 const app = express();
 app.use(cors());
@@ -36,3 +34,4 @@ getADAccessToken()
 
 app.use("/api/powerbi", powerbiRoutes);
 app.use("/api/sp", sharePointRoutes);
+app.use("/api/dashboard", dashboardRoutes);

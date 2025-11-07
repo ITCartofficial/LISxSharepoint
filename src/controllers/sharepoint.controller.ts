@@ -5,10 +5,7 @@ import {
   updatePostByTag,
 } from "../services/sharepoint.service";
 import { PostItem, PromptItem } from "../types/sharepoint.type";
-import {
-  getPostListId,
-  getPromptListId,
-} from "../constants/store";
+import { getPostListId, getPromptListId } from "../constants/store";
 import { getAnalyticsData } from "../services/agent.service";
 
 export const getItemsByListName = async (req: Request, res: Response) => {
@@ -35,7 +32,7 @@ export const getItemsByListName = async (req: Request, res: Response) => {
 export const savePromptToList = async (req: Request, res: Response) => {
   try {
     const body: PromptItem = req.body;
-    const result = await createListItem(getPostListId() || "", body);
+    const result = await createListItem(getPromptListId() || "", body);
 
     return res.status(201).json({
       status: 201,

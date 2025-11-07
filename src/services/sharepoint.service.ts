@@ -1,8 +1,9 @@
-import axios, { get } from "axios";
-import { getADToken } from "../constants/store";
+import axios, { all, get } from "axios";
+import { getADToken, getPostListId } from "../constants/store";
 import { config } from "../config/index";
 import { getADAccessToken } from "./auth.service";
-import { SharePointListItem } from "../types/sharepoint.type";
+import { PostItem, SharePointListItem } from "../types/sharepoint.type";
+import { platform, totalmem } from "os";
 
 export const getSiteIdByName = async (accessToken: string) => {
   try {
@@ -57,10 +58,8 @@ export const getListIdByName = async (listName: string) => {
 export const getAllItemsByListName = async (listName: string) => {
   let token = getADToken();
   if (token?.expires_in && token.access_token) {
-    console.log({ exp: token.expires_in, now: Math.floor(Date.now() / 1000) });
     const currentTime = Math.floor(Date.now() / 1000);
     if (token.expires_in < currentTime) {
-      console.log("AD Token Refreshing....");
       token = await getADAccessToken();
     }
   }
@@ -202,5 +201,66 @@ export const updatePostByTag = async (
   } catch (error: any) {
     console.error("Failed to update by tag:", error.message);
     throw error;
+  }
+};
+
+export const getPostEngagementMetrics = async () => {
+  try {
+    const emailList = await getAllItemsByListName("LISLeads");
+    const posts = await getAllItemsByListName("Post");
+    if (!posts) {
+      console.log("No posts found in SharePoint.");
+      return {
+        total_likes: 0,
+        total_engagements: 0,
+        total_impressions: 0,
+        email_contacted: emailList ? emailList.length : 0,
+        all_posts: [],
+      };
+    }
+
+    const items = posts.map((item: any) => ({
+      tag: item.fields.tag,
+      platform: item.fields.platform,
+      likes: item.fields.likes,
+      comments: item.fields.comments,
+      shares: item.fields.shares,
+      impressions: item.fields.impressions,
+      postUrl: item.fields.postUrl,
+      postedAt: item.fields.postedAt,
+      content: item.fields.content,
+      visual: item.fields.visual,
+      isApproved: item.fields.isApproved,
+    }));
+
+    const total_likes = items.reduce(
+      (acc: number, curr: PostItem) => acc + (curr.likes || 0),
+      0
+    );
+    const total_comments = items.reduce(
+      (acc: number, curr: any) => acc + (curr.comments || 0),
+      0
+    );
+    const total_shares = items.reduce(
+      (acc: number, curr: any) => acc + (curr.shares || 0),
+      0
+    );
+
+    const total_engagements = total_likes + total_comments + total_shares;
+
+    const total_impressions = items.reduce(
+      (acc: number, curr: any) => acc + (curr.impressions || 0),
+      0
+    );
+
+    return {
+      total_likes,
+      total_engagements,
+      total_impressions,
+      email_contacted: emailList ? emailList.length : 0,
+      all_posts: items,
+    };
+  } catch (error) {
+    console.error("Error fetching posts from SharePoint:", error);
   }
 };
