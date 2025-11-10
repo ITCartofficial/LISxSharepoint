@@ -7,7 +7,7 @@ export const config = {
   clientSecret: process.env.CLIENT_SECRET!,
   port: process.env.PORT || 5000,
   sharepointDomain: process.env.SHAREPOINT_DOMAIN || "itcart.sharepoint.com",
-  sharepointSite: process.env.SHAREPOINT_SITE || "AIXHub",
+  sharepointSite: process.env.SHAREPOINT_SITE || "USA_LIS_Project",
   agentUrl: process.env.AGENT_URL || "http://127.0.0.1:8000",
   siteId: process.env.SITE_ID || "",
 };

@@ -6,7 +6,7 @@ import dashboardRoutes from "./src/routes/dashboard.routes";
 import cors from "cors";
 import { setPostListId, setPromptListId } from "./src/constants/store";
 import { getADAccessToken } from "./src/services/auth.service";
-import { getListIdByName } from "./src/services/sharepoint.service";
+import { getListIdByName, getSiteIdByName } from "./src/services/sharepoint.service";
 
 const app = express();
 app.use(cors());

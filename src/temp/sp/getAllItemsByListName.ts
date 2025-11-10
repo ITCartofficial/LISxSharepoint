@@ -1,11 +1,11 @@
+import { config } from "../../config";
+
 export const getAllItemsByListName = async (token: string, list: string) => {
-  const siteHostname = "itcart.sharepoint.com";
-  const sitePath = "/sites/AIXHub";
   const listName = list || "Prompt";
 
   try {
     const response = await fetch(
-      `https://graph.microsoft.com/v1.0/sites/${siteHostname}:${sitePath}:/lists/${listName}/items?expand=fields`,
+      `https://graph.microsoft.com/v1.0/sites/${config.sharepointDomain}/sites/${config.sharepointSite}/lists/${listName}/items?expand=fields`,
       {
         method: "GET",
         headers: {

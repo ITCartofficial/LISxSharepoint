@@ -1,8 +1,9 @@
 import axios from "axios";
+import { config } from "../../config";
 
 export const getSiteId = async (accessToken: string) => {
   const siteUrl =
-    "https://graph.microsoft.com/v1.0/sites/itcart.sharepoint.com:/sites/AIXHub";
+    `https://graph.microsoft.com/v1.0/sites/${config.sharepointDomain}/sites/${config.sharepointSite}`;
 
   const response = await axios.get(siteUrl, {
     headers: {
