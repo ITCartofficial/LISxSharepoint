@@ -4,8 +4,12 @@ import {
   getAllItemsByListName,
   updatePostByTag,
 } from "../services/sharepoint.service";
-import { PostItem, PromptItem } from "../types/sharepoint.type";
-import { getPostListId, getPromptListId } from "../constants/store";
+import { EmailItem, PostItem, PromptItem } from "../types/sharepoint.type";
+import {
+  getLeadListId,
+  getPostListId,
+  getPromptListId,
+} from "../constants/store";
 import { getAnalyticsData } from "../services/agent.service";
 
 export const getItemsByListName = async (req: Request, res: Response) => {
@@ -144,8 +148,8 @@ export const syncPostList = async (req: Request, res: Response) => {
     console.log("Fetched items:", items);
 
     if (!items) {
-      return res.status(500).json({
-        status: 500,
+      return res.status(404).json({
+        status: 404,
         success: false,
         message: "No items found to sync",
       });
@@ -212,6 +216,36 @@ export const syncPostList = async (req: Request, res: Response) => {
       status: 500,
       success: false,
       message: "Failed to sync post list",
+      error: error.message,
+    });
+  }
+};
+
+export const saveLeadToList = async (req: Request, res: Response) => {
+  try {
+    const body: EmailItem = req.body;
+
+    if (!body.email) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const result = await createListItem(getLeadListId() || "", body);
+
+    return res.status(201).json({
+      status: 201,
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error saving lead:", error);
+    return res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Failed to save lead",
       error: error.message,
     });
   }

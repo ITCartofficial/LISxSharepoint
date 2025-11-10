@@ -1,9 +1,8 @@
-import axios, { all, get } from "axios";
-import { getADToken, getPostListId } from "../constants/store";
+import axios from "axios";
+import { getADToken } from "../constants/store";
 import { config } from "../config/index";
 import { getADAccessToken } from "./auth.service";
 import { PostItem, SharePointListItem } from "../types/sharepoint.type";
-import { platform, totalmem } from "os";
 
 export const getSiteIdByName = async (accessToken: string) => {
   try {
@@ -206,7 +205,7 @@ export const updatePostByTag = async (
 
 export const getPostEngagementMetrics = async () => {
   try {
-    const emailList = await getAllItemsByListName("LISLeads");
+    const emailList = await getAllItemsByListName("Leads");
     const posts = await getAllItemsByListName("Post");
     if (!posts) {
       console.log("No posts found in SharePoint.");

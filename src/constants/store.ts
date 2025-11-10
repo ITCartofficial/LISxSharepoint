@@ -1,5 +1,6 @@
 let postListId: string | null = null;
 let promptListId: string | null = null;
+let leadListId: string | null = null;
 let AD_TOKEN: { access_token: string; expires_in: number } | null = null;
 
 export const setADToken = (value: {
@@ -30,4 +31,11 @@ export const setPromptListId = (value: string) => {
 
 export const getPromptListId = (): string | null => {
   return promptListId;
+};
+
+export const setLeadListId = (value: string) => {
+  leadListId = value;
+};
+export const getLeadListId = (): string | null => {
+  return leadListId;
 };

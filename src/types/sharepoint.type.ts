@@ -21,10 +21,17 @@ export interface PostItem {
   impressions?: number;
 }
 
+export interface EmailItem {
+  email: string;
+  tag: string;
+  isVerified?: boolean;
+  isContacted?: boolean;
+}
+
 export interface LISItem {
   tag: string;
   prompt: PromptItem;
   post: PostItem;
 }
 
-export type SharePointListItem = PromptItem | PostItem;
+export type SharePointListItem = PromptItem | PostItem | EmailItem;

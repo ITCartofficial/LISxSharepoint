@@ -1,12 +1,14 @@
 import express, { Request, Response } from "express";
 import {
   getItemsByListName,
+  saveLeadToList,
   savePostAndPromptToList,
   savePostToList,
   savePromptToList,
   syncPostList,
 } from "../controllers/sharepoint.controller";
 import { validateItem } from "../middlewares/validateItem";
+import { validateLead } from "../middlewares/validateLead";
 
 const router = express.Router();
 
@@ -26,5 +28,8 @@ router.post("/save/post", savePostToList);
 
 // Create items in SharePoint List (both Prompt and Post)
 router.post("/save", validateItem, savePostAndPromptToList);
+
+// Post leads/emails to SharePoint List
+router.post("/save/lead", validateLead, saveLeadToList);
 
 export default router;

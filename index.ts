@@ -4,7 +4,7 @@ import powerbiRoutes from "./src/routes/powerBI.routes";
 import sharePointRoutes from "./src/routes/sharepoint.routes";
 import dashboardRoutes from "./src/routes/dashboard.routes";
 import cors from "cors";
-import { setPostListId, setPromptListId } from "./src/constants/store";
+import { setLeadListId, setPostListId, setPromptListId } from "./src/constants/store";
 import { getADAccessToken } from "./src/services/auth.service";
 import { getListIdByName, getSiteIdByName } from "./src/services/sharepoint.service";
 
@@ -22,6 +22,9 @@ getADAccessToken()
 
     const postListId = await getListIdByName("Post");
     setPostListId(postListId);
+
+    const leadListId = await getListIdByName("Leads");
+    setLeadListId(leadListId);
 
     app.listen(config.port, () => {
       console.log(`Server running on port ${config.port}`);
