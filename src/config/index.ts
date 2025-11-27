@@ -10,4 +10,7 @@ export const config = {
   sharepointSite: process.env.SHAREPOINT_SITE || "USA_LIS_Project",
   agentUrl: process.env.AGENT_URL || "http://127.0.0.1:8000",
   siteId: process.env.SITE_ID || "",
+  orgLinkedInAccessToken: process.env.ORG_LINKEDIN_ACCESS_TOKEN || "",
+  orgLinkedInOrgId: process.env.ORG_LINKEDIN_ORG_ID || "",
+  linkedInUrnId: process.env.LINKEDIN_URN_ID || "",
 };
